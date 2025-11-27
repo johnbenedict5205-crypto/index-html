@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Admin Dashboard - Homepage</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #a8e6cf 0%, #dcedc8 50%, #dcedc8 100%);
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      color: white;
+      text-align: center;
+      padding: 25px 0;
+      font-size: 32px;
+      font-weight: bold;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      border-bottom: 5px solid #388e3c;
+    }
+
+    .settings-btn {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      border: 2px solid white;
+      font-size: 20px;
+      cursor: pointer;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      transition: all 0.4s ease;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 20px;
+      top: 80px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      width: 200px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+
+    .container {
+      display: flex;
+      min-height: calc(100vh - 100px);
+    }
+
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(180deg, #2e7d32, #388e3c);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+    }
+
+    /* Enhanced sidebar links styling */
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 240px;
+      padding: 15px 20px;
+      margin: 10px 0;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border: 2px solid transparent;
+    }
+
+    .sidebar a:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .sidebar a i {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+
+    main {
+      flex: 1;
+      background-color: #f8f9fa;
+      padding: 50px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  Jrd Admin Dashboard - Homepage
+  <button class="settings-btn" onclick="toggleMenu()">⚙</button>
+
+  <div class="dropdown" id="settingsMenu">
+    <a href="admin-logout.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    <a href="changepassword admin.html"><i class="fas fa-key"></i> Change Password</a>
+  </div>
+</header>
+
+<div class="container">
+
+  <nav class="sidebar">
+    <a href="dailyrevenue.html"><i class="fas fa-calendar-day"></i> Daily Revenue</a>
+    <a href="weeklyrevenue.html"><i class="fas fa-calendar-week"></i> Weekly Revenue</a>
+    <a href="monthlyrevenue.html"><i class="fas fa-calendar-alt"></i> Monthly Revenue</a>
+    <a href="#customerOrders"><i class="fas fa-users"></i> Customer Orders</a>
+  </nav>
+
+  <main>
+
+    <h2 id="customerOrders">Customer Orders</h2>
+
+    <!-- CUSTOMER ORDERS TABLE -->
+    <table id="ordersTable">
+      <tr>
+        <th>Customer Name</th>
+        <th>Order Item</th>
+        <th>Quantity</th>
+        <th>Option</th>
+        <th>Payment</th>
+        <th>Total Cost</th>
+      </tr>
+    </table>
+
+  </main>
+</div>
+
+<script>
+function toggleMenu() {
+  const menu = document.getElementById("settingsMenu");
+  menu.style.display = (menu.style.display === "block") ? "none" : "block";
+}
+
+// ⭐ Load orders from localStorage
+function loadOrders() {
+  const table = document.getElementById("ordersTable");
+  const orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+  if (orders.length === 0) {
+    let row = table.insertRow();
+    let cell = row.insertCell();
+    cell.colSpan = 6;
+    cell.innerText = "No customer orders yet.";
+    cell.style.padding = "20px";
+    return;
+  }
+
+  orders.forEach(order => {
+    Object.keys(order.items).forEach(itemName => {
+      let item = order.items[itemName];
+      let row = table.insertRow();
+
+      row.insertCell(0).innerText = order.customerName;
+      row.insertCell(1).innerText = itemName;
+      row.insertCell(2).innerText = item.qty;
+      row.insertCell(3).innerText = item.option;
+      row.insertCell(4).innerText = order.payment;
+      row.insertCell(5).innerText = "₱" + (item.qty * item.price);
+    });
+  });
+}
+
+loadOrders();
+</script>
+
+</body>
+</html>
